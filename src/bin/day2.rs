@@ -1,20 +1,18 @@
 use std::cmp::Ordering;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 enum Play {
-    Rock,
-    Scissor,
-    Paper,
+    Rock = 1,
+    Paper = 2,
+    Scissor = 3,
 }
 
 impl PartialOrd for Play {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        if self == &Play::Rock && other == &Play::Scissor {
-            Some(Ordering::Greater)
-        } else if self == &Play::Scissor && other == &Play::Rock {
-            Some(Ordering::Less)
-        } else {
-            Some(self.get_num().cmp(&other.get_num()))
+        match (*self, *other) {
+            (Play::Rock, Play::Scissor) => Some(Ordering::Greater),
+            (Play::Scissor, Play::Rock) => Some(Ordering::Less),
+            _ => Some((*self as u32).cmp(&(*other as u32))),
         }
     }
 }
@@ -29,43 +27,35 @@ impl Play {
         }
     }
 
-    fn get_num(&self) -> u32 {
-        match self {
-            Self::Rock => 1,
-            Self::Paper => 2,
-            Self::Scissor => 3,
-        }
-    }
-
     fn part1(play1: &Self, play2: &Self) -> u32 {
-        let mut res: u32 = play1.get_num();
-        res += match play1.partial_cmp(play2) {
-            Some(Ordering::Greater) => 6,
-            Some(Ordering::Equal) => 3,
-            Some(Ordering::Less) => 0,
-            None => panic!("kkk"),
-        };
-
-        res
+        *play1 as u32
+            + match play1.partial_cmp(play2) {
+                Some(Ordering::Greater) => 6,
+                Some(Ordering::Equal) => 3,
+                Some(Ordering::Less) => 0,
+                None => panic!("kkk"),
+            }
     }
 
     fn part2(opon: &Self, cond: &Self) -> u32 {
         match cond {
             //Loss condition
-            Play::Rock => match &opon {
-                Play::Rock => Play::Scissor.get_num(),
-                Play::Paper => Play::Rock.get_num(),
-                Play::Scissor => Play::Paper.get_num(),
-            },
+            Play::Rock => {
+                (match &opon {
+                    Play::Rock => Play::Scissor,
+                    Play::Paper => Play::Rock,
+                    Play::Scissor => Play::Paper,
+                }) as u32
+            }
             //Draw condition
-            Play::Paper => 3 + opon.get_num(),
+            Play::Paper => 3 + *opon as u32,
             //Win condition
             Play::Scissor => {
-                6 + match &opon {
-                    Play::Rock => Play::Paper.get_num(),
-                    Play::Paper => Play::Scissor.get_num(),
-                    Play::Scissor => Play::Rock.get_num(),
-                }
+                6 + (match &opon {
+                    Play::Rock => Play::Paper,
+                    Play::Paper => Play::Scissor,
+                    Play::Scissor => Play::Rock,
+                }) as u32
             }
         }
     }
