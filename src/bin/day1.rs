@@ -1,8 +1,7 @@
 fn main() {
-    let input: Vec<&str> = include_str!("./input.txt").split("\n\n").collect();
+    let input = include_str!("./input.txt").split("\n\n");
 
     let mut tubias: Vec<u32> = input
-        .iter()
         .map(|e| {
             e.split('\n')
                 .filter_map(|num| num.parse::<u32>().ok())
