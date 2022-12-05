@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use regex::Regex;
 
 struct StackDusGuri {
@@ -55,10 +57,27 @@ impl SwitchMEDADDY {
 
         SwitchMEDADDY { stacks, ins }
     }
-    fn run(&mut self) -> String {
+    fn part1(&mut self) -> String {
         for ins in self.ins.iter() {
             for _ in 0..ins.quant {
                 let out = self.stacks[ins.from - 1].items.pop().unwrap();
+                self.stacks[ins.to - 1].items.push(out);
+            }
+        }
+
+        String::from_iter(self.stacks.iter().map(|s| s.items.last().unwrap()))
+    }
+
+    fn part2(&mut self) -> String {
+        for ins in self.ins.iter() {
+            let mut v: VecDeque<char> = VecDeque::new();
+            for _ in 0..ins.quant {
+                let out = self.stacks[ins.from - 1].items.pop().unwrap();
+                v.push_front(out);
+            }
+
+            for _ in 0..ins.quant {
+                let out = v.pop_front().unwrap();
                 self.stacks[ins.to - 1].items.push(out);
             }
         }
@@ -70,5 +89,7 @@ impl SwitchMEDADDY {
 fn main() {
     let data = include_str!("../day5.txt");
     let mut game = SwitchMEDADDY::new(data, 9);
-    println!("Result is {}", SwitchMEDADDY::run(&mut game));
+    println!("Result is {}", SwitchMEDADDY::part1(&mut game));
+    let mut game2 = SwitchMEDADDY::new(data, 9);
+    println!("Result is {}", SwitchMEDADDY::part2(&mut game2));
 }
